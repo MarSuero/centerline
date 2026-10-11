@@ -24,12 +24,14 @@ class CenterlineEditorView {
   private scrollFrame: number | null = null;
   private scrollAnimationFrame: number | null = null;
   private scrollAnimationToken = 0;
+  private centeredLine: number | null = null;
 
   constructor(
     private readonly host: EditorModeHost,
     private readonly view: EditorView
   ) {
     this.host.registerEditorView(view);
+    this.centeredLine = this.currentLineNumber();
     this.syncClassesAndDecorations();
     this.scheduleScroll(true);
   }
@@ -45,11 +47,14 @@ class CenterlineEditorView {
       this.syncClassesAndDecorations();
     }
 
-    if (
-      this.host.typewriterMode.enabled &&
-      (hasRefreshEffect(update) || update.selectionSet || update.docChanged || update.focusChanged)
-    ) {
-      this.scheduleScroll(hasRefreshEffect(update));
+    const refreshRequested = hasRefreshEffect(update);
+    const currentLine = this.currentLineNumber();
+    const lineChanged = this.centeredLine !== currentLine;
+    const focusEntered = update.focusChanged && !update.docChanged;
+
+    if (this.host.typewriterMode.enabled && (refreshRequested || lineChanged || focusEntered)) {
+      this.centeredLine = currentLine;
+      this.scheduleScroll(refreshRequested);
     }
   }
 
@@ -115,6 +120,10 @@ class CenterlineEditorView {
 
       this.scrollPositionToCenter(position);
     });
+  }
+
+  private currentLineNumber(): number {
+    return this.view.state.doc.lineAt(this.view.state.selection.main.head).number;
   }
 
   private scrollPositionToCenter(position: number): void {
