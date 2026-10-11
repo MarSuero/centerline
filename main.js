@@ -539,8 +539,16 @@ var CenterlinePlugin = class extends import_obsidian3.Plugin {
     super(app, manifest);
     this.settings = DEFAULT_SETTINGS;
     this.editorViews = /* @__PURE__ */ new Set();
-    this.focusMode = new FocusModeController(() => this.refreshEditorViews());
-    this.typewriterMode = new TypewriterModeController(() => this.refreshEditorViews());
+    this.focusRibbonIcon = null;
+    this.typewriterRibbonIcon = null;
+    this.focusMode = new FocusModeController(() => {
+      this.refreshEditorViews();
+      this.refreshRibbonIcons();
+    });
+    this.typewriterMode = new TypewriterModeController(() => {
+      this.refreshEditorViews();
+      this.refreshRibbonIcons();
+    });
     this.shortcutManager = new ShortcutManager(
       this.settings,
       (action) => this.toggleMode(action)
@@ -561,6 +569,17 @@ var CenterlinePlugin = class extends import_obsidian3.Plugin {
       name: "\u5207\u6362\u6253\u5B57\u673A\u6A21\u5F0F",
       callback: () => this.typewriterMode.toggle()
     });
+    this.focusRibbonIcon = this.addRibbonIcon(
+      "eye",
+      "\u5207\u6362\u4E13\u6CE8\u6A21\u5F0F",
+      () => this.focusMode.toggle()
+    );
+    this.typewriterRibbonIcon = this.addRibbonIcon(
+      "align-vertical-justify-center",
+      "\u5207\u6362\u6253\u5B57\u673A\u6A21\u5F0F",
+      () => this.typewriterMode.toggle()
+    );
+    this.refreshRibbonIcons();
     this.registerEditorExtension(createEditorExtension(this));
     this.registerDomEvent(document, "keydown", this.shortcutManager.handleKeydown, {
       capture: true
@@ -595,6 +614,23 @@ var CenterlinePlugin = class extends import_obsidian3.Plugin {
     } else {
       this.typewriterMode.toggle();
     }
+  }
+  refreshRibbonIcons() {
+    this.updateRibbonIcon(this.focusRibbonIcon, this.focusMode.enabled, "\u4E13\u6CE8\u6A21\u5F0F");
+    this.updateRibbonIcon(
+      this.typewriterRibbonIcon,
+      this.typewriterMode.enabled,
+      "\u6253\u5B57\u673A\u6A21\u5F0F"
+    );
+  }
+  updateRibbonIcon(icon, enabled, label) {
+    if (!icon) {
+      return;
+    }
+    icon.classList.toggle("is-active", enabled);
+    icon.setAttribute("aria-pressed", String(enabled));
+    icon.setAttribute("aria-label", `${label}\uFF1A${enabled ? "\u5DF2\u5F00\u542F" : "\u5DF2\u5173\u95ED"}`);
+    icon.setAttribute("title", `${label}\uFF1A${enabled ? "\u5DF2\u5F00\u542F" : "\u5DF2\u5173\u95ED"}`);
   }
   refreshEditorViews(_leaf) {
     for (const view of this.editorViews) {

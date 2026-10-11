@@ -7,15 +7,28 @@
   opacity: 1;
 }
 
+.centerline-mode-typewriter {
+  --centerline-typewriter-space: 50vh;
+}
+
 .centerline-mode-typewriter .cm-content {
-  padding-block-start: 50vh;
-  padding-block-end: 50vh;
+  padding-block-start: var(--centerline-typewriter-space);
+  padding-block-end: var(--centerline-typewriter-space);
 }
 
 .centerline-mode-typewriter .cm-scroller {
-  scroll-padding-top: 50vh;
-  scroll-padding-bottom: 50vh;
+  scroll-padding-top: var(--centerline-typewriter-space);
+  scroll-padding-bottom: var(--centerline-typewriter-space);
   scroll-behavior: smooth;
+}
+
+.centerline-ribbon-toggle.is-active {
+  color: var(--interactive-accent);
+  background-color: var(--background-modifier-hover);
+}
+
+.centerline-ribbon-toggle.is-active svg {
+  stroke-width: 2.5;
 }
 
 .centerline-shortcut-input {
@@ -27,4 +40,14 @@
 .centerline-shortcut-input.centerline-shortcut-recording {
   border-color: var(--interactive-accent);
   box-shadow: 0 0 0 2px var(--background-modifier-border-focus);
+}
+
+@media screen and (max-width: 700px) {
+  .centerline-mode-typewriter {
+    --centerline-typewriter-space: 38vh;
+  }
+
+  .centerline-shortcut-input {
+    width: min(12em, 100%);
+  }
 }

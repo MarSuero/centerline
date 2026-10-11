@@ -22,7 +22,7 @@ Reading Mode is not modified.
 
 ### Install from a Release
 
-1. Download `centerline-0.1.0.zip` from GitHub Releases.
+1. Download the matching `centerline-*.zip` archive from GitHub Releases.
 2. Create this folder inside your vault:
 
    ```text

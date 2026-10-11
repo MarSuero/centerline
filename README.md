@@ -22,7 +22,7 @@ Centerline 是一个 Obsidian 插件，为 Markdown 编辑器提供类似 Typora
 
 ### 从 Release 安装
 
-1. 在 GitHub Releases 下载 `centerline-0.1.0.zip`。
+1. 在 GitHub Releases 下载对应版本的 `centerline-*.zip`。
 2. 在 vault 中创建目录：
 
    ```text
