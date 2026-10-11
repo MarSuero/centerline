@@ -41,7 +41,9 @@ var CenterlineEditorView = class {
     this.scrollFrame = null;
     this.scrollAnimationFrame = null;
     this.scrollAnimationToken = 0;
+    this.centeredLine = null;
     this.host.registerEditorView(view);
+    this.centeredLine = this.currentLineNumber();
     this.syncClassesAndDecorations();
     this.scheduleScroll(true);
   }
@@ -50,8 +52,13 @@ var CenterlineEditorView = class {
     if (shouldSync) {
       this.syncClassesAndDecorations();
     }
-    if (this.host.typewriterMode.enabled && (hasRefreshEffect(update) || update.selectionSet || update.docChanged || update.focusChanged)) {
-      this.scheduleScroll(hasRefreshEffect(update));
+    const refreshRequested = hasRefreshEffect(update);
+    const currentLine = this.currentLineNumber();
+    const lineChanged = this.centeredLine !== currentLine;
+    const focusEntered = update.focusChanged && !update.docChanged;
+    if (this.host.typewriterMode.enabled && (refreshRequested || lineChanged || focusEntered)) {
+      this.centeredLine = currentLine;
+      this.scheduleScroll(refreshRequested);
     }
   }
   destroy() {
@@ -105,6 +112,9 @@ var CenterlineEditorView = class {
       }
       this.scrollPositionToCenter(position);
     });
+  }
+  currentLineNumber() {
+    return this.view.state.doc.lineAt(this.view.state.selection.main.head).number;
   }
   scrollPositionToCenter(position) {
     const coordinates = this.view.coordsAtPos(position);

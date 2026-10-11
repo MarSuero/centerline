@@ -1,6 +1,6 @@
 {
   "name": "centerline",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Focus and typewriter modes for Obsidian.",
   "main": "main.js",
   "scripts": {
