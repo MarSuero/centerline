@@ -1,0 +1,30 @@
+.centerline-mode-focus .cm-content > .cm-line {
+  opacity: var(--centerline-mode-focus-opacity, 0.42);
+  transition: opacity 90ms ease;
+}
+
+.centerline-mode-focus .cm-content > .cm-line.centerline-mode-focus-active {
+  opacity: 1;
+}
+
+.centerline-mode-typewriter .cm-content {
+  padding-block-start: 50vh;
+  padding-block-end: 50vh;
+}
+
+.centerline-mode-typewriter .cm-scroller {
+  scroll-padding-top: 50vh;
+  scroll-padding-bottom: 50vh;
+  scroll-behavior: smooth;
+}
+
+.centerline-shortcut-input {
+  width: 12em;
+  cursor: pointer;
+  text-align: center;
+}
+
+.centerline-shortcut-input.centerline-shortcut-recording {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px var(--background-modifier-border-focus);
+}

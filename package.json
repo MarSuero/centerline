@@ -1,0 +1,26 @@
+{
+  "name": "centerline",
+  "version": "0.1.0",
+  "description": "Focus and typewriter modes for Obsidian.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "node esbuild.config.mjs production"
+  },
+  "keywords": [
+    "obsidian",
+    "plugin",
+    "centerline",
+    "focus-mode",
+    "typewriter-mode"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "builtin-modules": "^5.0.0",
+    "esbuild": "^0.24.2",
+    "obsidian": "^1.7.2",
+    "tslib": "^2.8.1",
+    "typescript": "^5.7.2"
+  }
+}
