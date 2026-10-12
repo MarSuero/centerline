@@ -136,13 +136,6 @@ export class CenterlineSettingTab extends PluginSettingTab {
             name: "打字机模式快捷键",
             desc: "按下快捷键录入组合键。默认快捷键为 F9。",
             render: (setting) => this.renderShortcutSetting(setting, "typewriter")
-          },
-          {
-            name: "恢复默认快捷键",
-            desc: "将专注模式和打字机模式快捷键恢复为 F8 和 F9。",
-            action: () => {
-              void this.resetShortcuts();
-            }
           }
         ]
       }
@@ -231,10 +224,4 @@ export class CenterlineSettingTab extends PluginSettingTab {
     this.update();
   }
 
-  private async resetShortcuts(): Promise<void> {
-    this.host.settings.focusShortcut = DEFAULT_SETTINGS.focusShortcut;
-    this.host.settings.typewriterShortcut = DEFAULT_SETTINGS.typewriterShortcut;
-    await this.host.saveSettings();
-    this.update();
-  }
 }
