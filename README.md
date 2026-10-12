@@ -22,14 +22,14 @@ Centerline 是一个 Obsidian 插件，为 Markdown 编辑器提供类似 Typora
 
 ### 从 Release 安装
 
-1. 在 GitHub Releases 下载对应版本的 `centerline-*.zip`。
+1. 在 GitHub Releases 下载与 manifest 版本一致的 `main.js`、`manifest.json` 和 `styles.css`。
 2. 在 vault 中创建目录：
 
    ```text
    <你的 vault>/.obsidian/plugins/centerline/
    ```
 
-3. 将压缩包中的 `main.js`、`manifest.json` 和 `styles.css` 放入该目录。
+3. 将这三个文件放入该目录。
 4. 打开 Obsidian 的 **设置 > 社区插件**。
 5. 启用 **Centerline**。
 
@@ -81,3 +81,11 @@ CodeMirror 6 扩展通过 `registerEditorExtension` 注册，Obsidian 提供的 
 ## 许可证
 
 本项目使用 MIT License，详见 [LICENSE](LICENSE)。
+
+## English
+
+Centerline adds independent Focus Mode and Typewriter Mode to Markdown editors. Focus Mode dims non-active lines and offers adjustable opacity. Typewriter Mode smoothly centers the cursor line and avoids restarting its scroll animation while typing on the same line. It supports Live Preview, Source Mode, desktop, and mobile.
+
+Default shortcuts are `F8` for Focus Mode and `F9` for Typewriter Mode. Both can be changed in the searchable Centerline settings. The plugin is MIT-licensed.
+
+To install, download `main.js`, `manifest.json`, and `styles.css` from the matching GitHub Release. Place them in `<your-vault>/.obsidian/plugins/centerline/`, then enable Centerline under **Settings > Community plugins**.

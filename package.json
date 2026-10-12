@@ -1,6 +1,6 @@
 {
   "name": "centerline",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Focus and typewriter modes for Obsidian.",
   "main": "main.js",
   "scripts": {
@@ -17,10 +17,11 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^22.10.2",
-    "builtin-modules": "^5.0.0",
     "esbuild": "^0.24.2",
     "obsidian": "^1.7.2",
     "tslib": "^2.8.1",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "@codemirror/state": "6.7.6",
+    "@codemirror/view": "6.43.13"
   }
 }

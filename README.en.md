@@ -22,14 +22,14 @@ Reading Mode is not modified.
 
 ### Install from a Release
 
-1. Download the matching `centerline-*.zip` archive from GitHub Releases.
+1. Download `main.js`, `manifest.json`, and `styles.css` from the matching GitHub Release.
 2. Create this folder inside your vault:
 
    ```text
    <your-vault>/.obsidian/plugins/centerline/
    ```
 
-3. Copy `main.js`, `manifest.json`, and `styles.css` from the archive into that folder.
+3. Copy the three files into that folder.
 4. Open **Settings > Community plugins** in Obsidian.
 5. Enable **Centerline**.
 
