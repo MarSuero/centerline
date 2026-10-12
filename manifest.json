@@ -1,7 +1,7 @@
 {
   "id": "centerline",
   "name": "Centerline",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "minAppVersion": "1.13.1",
   "description": "Focus and typewriter modes for Markdown editors.",
   "author": "鸠十六",
