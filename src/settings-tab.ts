@@ -1,6 +1,17 @@
-import { App, PluginSettingTab, Setting, TextComponent } from "obsidian";
-import { ShortcutAction, ShortcutManager, formatShortcut, shortcutFromKeyboardEvent } from "./shortcuts";
-import { CenterlineSettings, DEFAULT_SETTINGS } from "./settings";
+import {
+  App,
+  PluginSettingTab,
+  Setting,
+  SettingDefinitionItem,
+  TextComponent
+} from "obsidian";
+import {
+  ShortcutAction,
+  ShortcutManager,
+  formatShortcut,
+  shortcutFromKeyboardEvent
+} from "./shortcuts";
+import { CenterlineSettings, DEFAULT_SETTINGS, normalizeSettings } from "./settings";
 
 export interface SettingsHost {
   settings: CenterlineSettings;
@@ -11,32 +22,36 @@ export interface SettingsHost {
 
 class ShortcutInput {
   private composing = false;
+  private readonly input: HTMLInputElement;
 
   constructor(
-    private readonly text: TextComponent,
+    text: TextComponent,
     private readonly currentShortcut: () => string,
     private readonly onShortcut: (shortcut: string, input: ShortcutInput) => void
   ) {
-    const input = text.inputEl;
-    input.readOnly = true;
-    input.addClass("centerline-shortcut-input");
-    input.setAttribute("spellcheck", "false");
-    input.setAttribute("autocomplete", "off");
-    input.setAttribute("aria-label", "快捷键");
-    input.value = formatShortcut(this.currentShortcut());
+    this.input = text.inputEl;
+    this.input.readOnly = true;
+    this.input.addClass("centerline-shortcut-input");
+    this.input.setAttribute("spellcheck", "false");
+    this.input.setAttribute("autocomplete", "off");
+    this.input.setAttribute("aria-label", "快捷键");
+    this.refresh();
 
-    input.addEventListener("compositionstart", this.onCompositionStart);
-    input.addEventListener("compositionend", this.onCompositionEnd);
-    input.addEventListener("keydown", this.onKeydown);
-    input.addEventListener("focus", this.onFocus);
+    this.input.addEventListener("compositionstart", this.onCompositionStart);
+    this.input.addEventListener("compositionend", this.onCompositionEnd);
+    this.input.addEventListener("keydown", this.onKeydown);
+    this.input.addEventListener("focus", this.onFocus);
   }
 
   refresh(): void {
-    this.text.inputEl.value = formatShortcut(this.currentShortcut());
+    this.input.value = formatShortcut(this.currentShortcut());
   }
 
-  setRecording(recording: boolean): void {
-    this.text.inputEl.classList.toggle("centerline-shortcut-recording", recording);
+  dispose(): void {
+    this.input.removeEventListener("compositionstart", this.onCompositionStart);
+    this.input.removeEventListener("compositionend", this.onCompositionEnd);
+    this.input.removeEventListener("keydown", this.onKeydown);
+    this.input.removeEventListener("focus", this.onFocus);
   }
 
   private onCompositionStart = (): void => {
@@ -48,11 +63,11 @@ class ShortcutInput {
   };
 
   private onFocus = (): void => {
-    this.text.inputEl.select();
+    this.input.select();
   };
 
   private onKeydown = (event: KeyboardEvent): void => {
-    if (this.composing || event.isComposing || event.key === "Process" || event.keyCode === 229) {
+    if (this.composing || event.isComposing || event.key === "Process") {
       return;
     }
 
@@ -61,19 +76,14 @@ class ShortcutInput {
 
     if (event.key === "Escape") {
       this.refresh();
-      this.setRecording(false);
-      this.text.inputEl.blur();
+      this.input.blur();
       return;
     }
 
     const shortcut = shortcutFromKeyboardEvent(event);
-    if (!shortcut) {
-      this.setRecording(true);
-      return;
+    if (shortcut) {
+      this.onShortcut(shortcut, this);
     }
-
-    this.setRecording(false);
-    this.onShortcut(shortcut, this);
   };
 }
 
@@ -85,103 +95,119 @@ export class CenterlineSettingTab extends PluginSettingTab {
     super(app, host as unknown as import("obsidian").Plugin);
   }
 
-  display(): void {
-    const { containerEl } = this;
-    containerEl.empty();
-
-    containerEl.createEl("h2", { text: "Centerline" });
-
-    containerEl.createEl("p", {
-      text: "专注模式和打字机模式只作用于 Markdown 编辑器，不影响阅读模式。模式状态不会在插件重载后保留。"
-    });
-
-    this.createShortcutSetting(
-      "专注模式快捷键",
-      "降低其他编辑器行的透明度，当前光标所在行保持正常显示。",
-      "focus"
-    );
-
-    this.createShortcutSetting(
-      "打字机模式快捷键",
-      "让当前光标所在行滚动到编辑区垂直中心。",
-      "typewriter"
-    );
-
-    new Setting(containerEl)
-      .setName("恢复默认快捷键")
-      .setDesc(`专注模式 ${formatShortcut(DEFAULT_SETTINGS.focusShortcut)}，打字机模式 ${formatShortcut(DEFAULT_SETTINGS.typewriterShortcut)}`)
-      .addButton((button) =>
-        button.setButtonText("恢复默认").onClick(async () => {
-          this.host.settings.focusShortcut = DEFAULT_SETTINGS.focusShortcut;
-          this.host.settings.typewriterShortcut = DEFAULT_SETTINGS.typewriterShortcut;
-          await this.host.saveSettings();
-          this.display();
-        })
-      );
-
-    new Setting(containerEl)
-      .setName("专注模式透明度")
-      .setDesc("数值越低，非当前行越淡；当前默认值为 42%。")
-      .addSlider((slider) =>
-        slider
-          .setLimits(0.1, 0.9, 0.05)
-          .setValue(this.host.settings.focusOpacity)
-          .setDynamicTooltip()
-          .onChange((value) => {
-            this.host.settings.focusOpacity = value;
-            this.host.refreshEditorViews();
-            void this.host.saveSettings();
-          })
-      )
-      .addButton((button) =>
-        button.setButtonText("恢复默认").onClick(async () => {
-          this.host.settings.focusOpacity = DEFAULT_SETTINGS.focusOpacity;
-          this.host.refreshEditorViews();
-          await this.host.saveSettings();
-          this.display();
-        })
-      );
+  getSettingDefinitions(): SettingDefinitionItem[] {
+    return [
+      {
+        type: "group",
+        heading: "专注模式",
+        items: [
+          {
+            name: "非当前行透明度",
+            desc: "数值越低，非当前行越淡；默认值为 42%。",
+            control: {
+              type: "slider",
+              key: "focusOpacity",
+              min: 0.1,
+              max: 0.9,
+              step: 0.05,
+              defaultValue: DEFAULT_SETTINGS.focusOpacity,
+              displayFormat: (value) => `${Math.round(value * 100)}%`
+            }
+          },
+          {
+            name: "恢复默认透明度",
+            desc: "将非当前行透明度恢复为 42%。",
+            action: () => {
+              void this.resetFocusOpacity();
+            }
+          },
+          {
+            name: "专注模式快捷键",
+            desc: "按下快捷键录入组合键。默认快捷键为 F8。",
+            render: (setting) => this.renderShortcutSetting(setting, "focus")
+          }
+        ]
+      },
+      {
+        type: "group",
+        heading: "打字机模式",
+        items: [
+          {
+            name: "打字机模式快捷键",
+            desc: "按下快捷键录入组合键。默认快捷键为 F9。",
+            render: (setting) => this.renderShortcutSetting(setting, "typewriter")
+          },
+          {
+            name: "恢复默认快捷键",
+            desc: "将专注模式和打字机模式快捷键恢复为 F8 和 F9。",
+            action: () => {
+              void this.resetShortcuts();
+            }
+          }
+        ]
+      }
+    ];
   }
 
-  private createShortcutSetting(
-    name: string,
-    description: string,
-    action: ShortcutAction
-  ): void {
-    const setting = new Setting(this.containerEl).setName(name).setDesc(description);
-    let inputControl: ShortcutInput | null = null;
+  getControlValue(key: string): unknown {
+    if (key === "focusOpacity") {
+      return this.host.settings.focusOpacity;
+    }
+
+    return undefined;
+  }
+
+  async setControlValue(key: string, value: unknown): Promise<void> {
+    if (key !== "focusOpacity" || typeof value !== "number") {
+      return;
+    }
+
+    this.host.settings.focusOpacity = normalizeSettings({
+      ...this.host.settings,
+      focusOpacity: value
+    }).focusOpacity;
+    this.host.refreshEditorViews();
+    await this.host.saveSettings();
+  }
+
+  private renderShortcutSetting(setting: Setting, action: ShortcutAction): () => void {
+    let shortcutInput: ShortcutInput | null = null;
 
     setting.addText((text) => {
-      inputControl = new ShortcutInput(
+      shortcutInput = new ShortcutInput(
         text,
         () => this.shortcutForAction(action),
         (shortcut, input) => {
-          if (!this.trySetShortcut(action, shortcut)) {
+          if (this.host.shortcutManager.hasConflict(action, shortcut)) {
+            this.host.shortcutManager.notifyConflict(action);
             input.refresh();
             return;
           }
 
+          this.setShortcutForAction(action, shortcut);
           void this.host.saveSettings();
-          input.refresh();
+          this.update();
         }
       );
     });
 
     setting.addButton((button) =>
-      button.setButtonText("恢复默认").onClick(async () => {
-        const defaultShortcut =
-          action === "focus"
-            ? DEFAULT_SETTINGS.focusShortcut
-            : DEFAULT_SETTINGS.typewriterShortcut;
-        if (!this.trySetShortcut(action, defaultShortcut)) {
-          inputControl?.refresh();
-          return;
-        }
-
-        await this.host.saveSettings();
-        inputControl?.refresh();
-      })
+      button
+        .setButtonText("恢复默认")
+        .setTooltip("恢复此模式的默认快捷键")
+        .onClick(async () => {
+          this.setShortcutForAction(
+            action,
+            action === "focus"
+              ? DEFAULT_SETTINGS.focusShortcut
+              : DEFAULT_SETTINGS.typewriterShortcut
+          );
+          await this.host.saveSettings();
+          this.update();
+        })
     );
+
+    return () => shortcutInput?.dispose();
   }
 
   private shortcutForAction(action: ShortcutAction): string {
@@ -198,13 +224,17 @@ export class CenterlineSettingTab extends PluginSettingTab {
     }
   }
 
-  private trySetShortcut(action: ShortcutAction, shortcut: string): boolean {
-    if (this.host.shortcutManager.hasConflict(action, shortcut)) {
-      this.host.shortcutManager.notifyConflict(action);
-      return false;
-    }
+  private async resetFocusOpacity(): Promise<void> {
+    this.host.settings.focusOpacity = DEFAULT_SETTINGS.focusOpacity;
+    this.host.refreshEditorViews();
+    await this.host.saveSettings();
+    this.update();
+  }
 
-    this.setShortcutForAction(action, shortcut);
-    return true;
+  private async resetShortcuts(): Promise<void> {
+    this.host.settings.focusShortcut = DEFAULT_SETTINGS.focusShortcut;
+    this.host.settings.typewriterShortcut = DEFAULT_SETTINGS.typewriterShortcut;
+    await this.host.saveSettings();
+    this.update();
   }
 }

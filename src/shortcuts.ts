@@ -1,12 +1,10 @@
-import { Notice } from "obsidian";
+import { Notice, Platform } from "obsidian";
 import { CenterlineSettings } from "./settings";
 
 export type ShortcutAction = "focus" | "typewriter";
 
-const MAC_PLATFORM_PATTERN = /Mac|iPhone|iPad|iPod/i;
-
 function isMacPlatform(): boolean {
-  return typeof navigator !== "undefined" && MAC_PLATFORM_PATTERN.test(navigator.platform);
+  return Platform.isMacOS;
 }
 
 function keyNameFromEvent(event: KeyboardEvent): string | null {
