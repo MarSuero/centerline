@@ -35,7 +35,7 @@ Reading Mode is not modified.
 
 ### Manual installation
 
-You can also download the repository as a ZIP and copy `main.js`, `manifest.json`, and `styles.css` into the plugin folder above.
+You can also download `main.js`, `manifest.json`, and `styles.css` individually from the matching GitHub Release and place them in the plugin folder above.
 
 ## Settings
 

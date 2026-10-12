@@ -35,7 +35,7 @@ Centerline 是一个 Obsidian 插件，为 Markdown 编辑器提供类似 Typora
 
 ### 手动安装
 
-也可以直接从仓库下载 ZIP，按上面的目录结构复制 `main.js`、`manifest.json` 和 `styles.css`。
+也可以从对应版本的 GitHub Release 单独下载 `main.js`、`manifest.json` 和 `styles.css`，再按上面的目录结构放入插件文件夹。
 
 ## 设置
 
